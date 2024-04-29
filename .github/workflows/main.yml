@@ -1,0 +1,36 @@
+name: updateChart
+
+on:
+  push:
+    branches: ["*"]
+    
+env:
+  CHART_REPO: youngwjung/file-to-env-chart
+    
+jobs:
+  updateChart:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - uses: actions-hub/kubectl@master
+      with:
+        args: create configmap env --from-env-file=env --dry-run=client -o yaml
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ env.CHART_REPO }}
+        token: ${{ secrets.ACCESS_TOKEN }}
+        ref: main
+        path: ${{ env.CHART_REPO }}
+    # - name: Update values.yaml
+    #   uses: fjogeleit/yaml-update-action@main
+    #   with:
+    #     valueFile: "${{ env.CHART_REPO }}/values.yaml"
+    #     propertyPath: "admin.image.tag"
+    # - name: Commit & Push changes
+    #   uses: actions-js/push@master
+    #   with:
+    #     github_token: ${{ secrets.ACCESS_TOKEN }}
+    #     directory: ${{ env.CHART_REPO }}
+    #     repository: ${{ env.CHART_REPO }}
